@@ -10,6 +10,6 @@ app = FastAPI()
 def index():
     return 'Hello, World, again!!'
 
-if __name__ == "__name__":
+if __name__ == "__main__":
     import uvicorn
     uvicorn.run('hello2_fastapi:app', reload=True)
