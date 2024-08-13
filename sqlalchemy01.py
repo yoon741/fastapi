@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from typing import List
+
+from fastapi import FastAPI, Depends
+from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, String, Integer
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
 # sqlalchemy
 # 파이썬용 ORM 라이브러리
@@ -11,7 +14,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 sqlite_url = 'sqlite:///python.db'
 engine = create_engine(sqlite_url,
         connect_args={'check_same_thread': False}, echo=True)
-Sessionlocal = sessionmaker(
+SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, bind=engine)
 
 # 데이터베이스 모델 정의
@@ -29,6 +32,23 @@ class Sungjuk(Base):
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)
 
+# 데이터베이스 세션을 의존성으로 주입하기 위한 함수
+def get_db():
+    db = SessionLocal()  # 데이터베이스 세션 객체 생성
+    try:
+        yield db
+    finally:
+        db.close()
+
+# pydantic 모델
+class SungjukModel(BaseModel):
+    sjno: int
+    name: str
+    kor: int
+    eng: int
+    mat: int
+
+
 # FastAPI 메인
 app = FastAPI()
 
@@ -36,10 +56,15 @@ app = FastAPI()
 def index():
     return 'Hello, sqlalchemy!!'
 
+# 성적 조회
+@app.get('/sj', response_model=List[SungjukModel])
+def read_sj(db: Session = Depends(get_db)):
+    sungjuks = db.query(Sungjuk).all()  # all은 select에서 *을 넣어 모든것을 불러온 것과 같다
+    return sungjuks
 
 
-# __name__: 실행중인 모듈 이름을 의미하는 매직키워드
-# 만일, 파일을 직접 실행하면 __name__이름은 __main__으로 자동지정
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run('sqlalchemy01:app', reload=True)
