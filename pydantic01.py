@@ -72,6 +72,16 @@ def sjrmv(name: str):
             rmvone = sungjuk_db.pop(idx)   # sungjuk_db.pop(idx) < 저장된 데이터 위치 값
     return rmvone
 
+# 성적 데이터 수정 - 이름으로 조회 후 국어/영어/수학 수정
+@app.put('/sj', response_model=Sungjuk)
+def sjput(one: Sungjuk):
+    putone = Sungjuk(name='none', kor=00, eng=00, mat=00)
+    for idx, sj in enumerate(sungjuk_db):
+        if sj.name == one.name:     # 이름을 비교하여 맞다면
+            sungjuk_db[idx] = one   # 수정
+            putone = one
+    return putone
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run('pydantic01:app', reload=True)
