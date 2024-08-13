@@ -63,12 +63,12 @@ def sjone(name: str):
             findone = sj
     return findone
 
-#
+# 성적데이터 삭제
 @app.delete('/sj/{name}', response_model=Sungjuk)
 def sjrmv(name: str):
     rmvone = Sungjuk(name='none', kor=00, eng=00, mat=00)
     for idx, sj in enumerate(sungjuk_db):
-        if sj. name == name:
+        if sj.name == name:
             rmvone = sungjuk_db.pop(idx)   # sungjuk_db.pop(idx) < 저장된 데이터 위치 값
     return rmvone
 
