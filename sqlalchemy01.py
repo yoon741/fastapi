@@ -67,9 +67,9 @@ def read_sj(db: Session = Depends(get_db)):
 
 
 # 성적 추가
-@app.post('/sj', response_model=List[SungjukModel])
+@app.post('/sj', response_model=SungjukModel)
 def sjadd(sj: SungjukModel, db: Session = Depends(get_db)):
-    sj = Sungjuk(*dict(sj))     # 클라이언트가 전송한 성적데이터가
+    sj = Sungjuk(**dict(sj))     # 클라이언트가 전송한 성적데이터가
                                 # pydantic으로 유효성 검사후
                                 # 데이터베이스에 저장할 수 있도록
                                 # sqlalchemy 객체로 변환
@@ -93,7 +93,7 @@ def readone_sj(sjno: int, db: Session = Depends(get_db)):
 # 성적 삭제 - 학생번호로 삭제
 # 먼저, 삭제할 학생 데이터가 있는지 확인한 후 삭제 실행
 @app.delete('/sj/{sjno}', response_model=Optional[SungjukModel])
-def readone_sj(sjno: int, db: Session = Depends(get_db)):
+def delete_sj(sjno: int, db: Session = Depends(get_db)):
     sungjuk = db.query(Sungjuk).filter(Sungjuk.sjno == sjno).first()
     if sungjuk:
         db.delete(sungjuk)
@@ -104,11 +104,13 @@ def readone_sj(sjno: int, db: Session = Depends(get_db)):
 # 성적 수정 - 학생번호로 수정
 # 먼저, 수정할 학생 데이터가 있는지 확인한 후 수정 실행
 @app.put('/sj/{sjno}', response_model=Optional[SungjukModel])
-def readone_sj(sjno: int, db: Session = Depends(get_db)):
-    sungjuk = db.query(Sungjuk).filter(Sungjuk.sjno == sjno).first()
+def update_sj(sj: SungjukModel, db: Session = Depends(get_db)):
+    sungjuk = db.query(Sungjuk).filter(Sungjuk.sjno == sj.sjno).first()
     if sungjuk:
-        db.delete(sungjuk)
+        for key, val in sj.dict().items():
+            setattr(sungjuk, key, val)
         db.commit()
+        db.refresh(sungjuk)
     return sungjuk
 
 
