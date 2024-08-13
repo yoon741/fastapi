@@ -66,6 +66,22 @@ def read_sj(db: Session = Depends(get_db)):
     return sungjuks
 
 
+# 성적 추가
+@app.post('/sj', response_model=List[SungjukModel])
+def sjadd(sj: SungjukModel, db: Session = Depends(get_db)):
+    sj = Sungjuk(*dict(sj))     # 클라이언트가 전송한 성적데이터가
+                                # pydantic으로 유효성 검사후
+                                # 데이터베이스에 저장할 수 있도록
+                                # sqlalchemy 객체로 변환
+    # py : Sungjuk(name=?, kor=?, eng=?, mat=?)   < 이렇게 넘어온 개별 값을
+    # sa : Sungjuk(sj['name'], sj['kor'], sj['eng'], sj['mat'])  < 이런식으로 딕셔너리 형으로
+                                                                    #  변환해야 밑에 내용 작동가능
+
+    db.add(sj)
+    db.commit()         # 반영
+    db.refresh(sj)      # 적용
+    return sj
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run('sqlalchemy01:app', reload=True)
