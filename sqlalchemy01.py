@@ -36,9 +36,10 @@ Base.metadata.create_all(bind=engine)
 def get_db():
     db = SessionLocal()  # 데이터베이스 세션 객체 생성
     try:
-        yield db
+        yield db    # yield : 파이썬 제네레이터 객체
+                    # 함수가 호출될때 비로소 객체를 변환(넘김)
     finally:
-        db.close()
+        db.close()  # 데이터베이스 세션 닫음(디비 연결해제 및 리소스 반환)
 
 # pydantic 모델
 class SungjukModel(BaseModel):
@@ -57,12 +58,12 @@ def index():
     return 'Hello, sqlalchemy!!'
 
 # 성적 조회
+# Depends : 의존성 주입 - 디비 세션 제공
+# => 코드 재사용성 향상, 관리 용이성 향상
 @app.get('/sj', response_model=List[SungjukModel])
 def read_sj(db: Session = Depends(get_db)):
     sungjuks = db.query(Sungjuk).all()  # all은 select에서 *을 넣어 모든것을 불러온 것과 같다
     return sungjuks
-
-
 
 
 if __name__ == "__main__":
