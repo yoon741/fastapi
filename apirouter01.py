@@ -14,19 +14,19 @@ from app.dbfactory import db_startup, db_shutdown
 async def lifespan(app: FastAPI):
     await db_startup()      # 애플리케이션 시작시 실행 
     yield                   # 애플리케이션 실행중에는 일시 중지
-    await db_shutdown()     # 애플리케이션 종료시 실행              # 4
+    await db_shutdown()     # 애플리케이션 종료시 실행                       # 4
 
 
 # lifespan : FastAPI 애플리케이션의 수명주기동안 실행ㅇ할 코드를 정의한 함수
 # asynccontextmanager에 의해 관리될 작업을 정의하는 용도로 사용
-app = FastAPI(lifespan=lifespan)                                # 1
+app = FastAPI(lifespan=lifespan)                                         # 1
 
 
 @app.get('/')
 def index():
-    return 'Hello, APIRouter!!'                                 # 3
+    return 'Hello, APIRouter!!'                                          # 3
 
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run('apirouter01:app', reload=True)             # 2
+    uvicorn.run('apirouter01:app', reload=True)                     # 2
